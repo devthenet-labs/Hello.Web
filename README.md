@@ -4,6 +4,9 @@ A small Go HTTP service, scaffolded by `patchy init app` so that [patchy](https:
 build intents in it and preview its pull requests. It listens on port 8080, answers `/healthz` once it is
 ready and writes nothing to disk.
 
+It was made from [devthenet-labs/app-template](https://github.com/devthenet-labs/app-template). Its repository name
+is `Hello.Web` and its image name `hello-web`: patchy needs only the image name to be image-safe.
+
 ## Develop
 
 Use Go 1.26.6.
