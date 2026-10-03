@@ -26,7 +26,7 @@ func main() {
 	defer stop()
 	server := &http.Server{
 		Addr:              addr,
-		Handler:           newHandler(commitSHA),
+		Handler:           newHandler(commitSHA, time.Now),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      10 * time.Second,

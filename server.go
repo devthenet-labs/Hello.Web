@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"time"
 )
 
 // page is the service's one page.
@@ -17,13 +18,14 @@ const page = `<!doctype html>
 </head>
 <body>
 <h1>%[1]s</h1>
+<p><small>%[3]s</small></p>
 <p>Revision <code>%[2]s</code>.</p>
 </body>
 </html>
 `
 
 // newHandler serves the page at / and the readiness check at /healthz.
-func newHandler(revision string) http.Handler {
+func newHandler(revision string, now func() time.Time) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -32,7 +34,8 @@ func newHandler(revision string) http.Handler {
 	})
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_, _ = fmt.Fprintf(w, page, html.EscapeString("Hello.Web"), html.EscapeString(revision))
+		today := now().UTC().Format("2 January 2006")
+		_, _ = fmt.Fprintf(w, page, html.EscapeString("Hello.Web"), html.EscapeString(revision), html.EscapeString(today))
 	})
 	return withSecurityHeaders(mux)
 }
