@@ -32,7 +32,7 @@ func newHandler(revision string) http.Handler {
 	})
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_, _ = fmt.Fprintf(w, page, html.EscapeString("app-template"), html.EscapeString(revision))
+		_, _ = fmt.Fprintf(w, page, html.EscapeString("Hello.Web"), html.EscapeString(revision))
 	})
 	return withSecurityHeaders(mux)
 }

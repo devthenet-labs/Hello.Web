@@ -32,7 +32,7 @@ ENV PATH=/usr/local/go/bin:${PATH} \
     GOPROXY=off \
     GOFLAGS=-mod=mod \
     CGO_ENABLED=0
-LABEL org.opencontainers.image.source="https://github.com/devthenet-labs/app-template" \
-      org.opencontainers.image.title="app-template agent toolchain"
+LABEL org.opencontainers.image.source="https://github.com/devthenet-labs/Hello.Web" \
+      org.opencontainers.image.title="hello-web agent toolchain"
 WORKDIR /workspace
 USER 65532:65532

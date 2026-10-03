@@ -9,10 +9,10 @@ RUN go mod download
 COPY . .
 ARG BUILD_SHA=dev
 RUN CGO_ENABLED=0 GOTOOLCHAIN=local go build -trimpath -buildvcs=false \
-    -ldflags="-s -w -X main.commitSHA=${BUILD_SHA}" -o /out/app-template .
+    -ldflags="-s -w -X main.commitSHA=${BUILD_SHA}" -o /out/hello-web .
 
 FROM gcr.io/distroless/static-debian13:nonroot@sha256:1c2c046bc09ed40fad370b599a0b1ae7987f55b01e247cf27a7c27cd97e5bbc7
-COPY --from=build /out/app-template /app-template
+COPY --from=build /out/hello-web /hello-web
 USER 65532:65532
 EXPOSE 8080
-ENTRYPOINT ["/app-template"]
+ENTRYPOINT ["/hello-web"]

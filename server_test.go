@@ -15,7 +15,7 @@ func TestHandler(t *testing.T) {
 		status             int
 		contentType, body  string
 	}{
-		{"page", http.MethodGet, "/", http.StatusOK, "text/html; charset=utf-8", "<h1>app-template</h1>"},
+		{"page", http.MethodGet, "/", http.StatusOK, "text/html; charset=utf-8", "<h1>Hello.Web</h1>"},
 		{"readiness", http.MethodGet, "/healthz", http.StatusOK, "application/json", `"status":"ok"`},
 		{"unknown path", http.MethodGet, "/missing", http.StatusNotFound, "", ""},
 		{"wrong method", http.MethodPost, "/", http.StatusMethodNotAllowed, "", ""},

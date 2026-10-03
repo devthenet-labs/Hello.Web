@@ -1,4 +1,4 @@
-// app-template is a small HTTP service, the starting point patchy init app
+// hello-web is a small HTTP service, the starting point patchy init app
 // generated. It listens on one port, answers /healthz for readiness
 // checks and writes nothing to disk, so it runs with a read-only root
 // filesystem, as a patchy preview runs it.

@@ -6,4 +6,4 @@
 # (toolchain-v2, toolchain-v3, ...) in the same commit: tags are immutable,
 # so a changed image at a published tag fails to publish. The publisher
 # reads the tag from this file, so keep it to this one image line.
-image: 377946145366.dkr.ecr.us-east-1.amazonaws.com/patchy/app-envs/app-template:toolchain-v1
+image: 377946145366.dkr.ecr.us-east-1.amazonaws.com/patchy/app-envs/hello-web:toolchain-v1

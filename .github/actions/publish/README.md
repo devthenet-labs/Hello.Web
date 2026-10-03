@@ -41,10 +41,10 @@ The roles are the boundary. AWS binds each one to this repository's OIDC subject
 the `main` ref, audience `sts.amazonaws.com` and its **own** publisher workflow, the only workflows in this
 repository that assume a role:
 
-| Trusted workflow (`job_workflow_ref`)                                               | Assumes            | Publishes                                                                            |
-| ----------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------ |
-| `devthenet-labs/app-template/.github/workflows/publish-runtime.yml@refs/heads/main` | `RUNTIME_ROLE_ARN` | the runtime image as `sha-<commit>`, and `main-<commit>` for a default-branch commit |
-| `devthenet-labs/app-template/.github/workflows/publish-agent.yml@refs/heads/main`   | `AGENT_ROLE_ARN`   | the agent image as the `toolchain-v<N>` tag `.patchy/agent.yaml` declares            |
+| Trusted workflow (`job_workflow_ref`)                                            | Assumes            | Publishes                                                                            |
+| -------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------ |
+| `devthenet-labs/Hello.Web/.github/workflows/publish-runtime.yml@refs/heads/main` | `RUNTIME_ROLE_ARN` | the runtime image as `sha-<commit>`, and `main-<commit>` for a default-branch commit |
+| `devthenet-labs/Hello.Web/.github/workflows/publish-agent.yml@refs/heads/main`   | `AGENT_ROLE_ARN`   | the agent image as the `toolchain-v<N>` tag `.patchy/agent.yaml` declares            |
 
 The `job_workflow_ref` is compared exactly, case included. The runtime publisher therefore cannot assume the agent role,
 and neither role can write any other repository. A wrong repository variable can only make a publish fail.
@@ -57,18 +57,18 @@ and add a tag ruleset that restricts creating tags named `main`, so no ref can p
 
 None of them is secret. Set the configuration first and the two `*_PUBLISH_ENABLED` gates last:
 
-| Variable                   | Value                                                     | What it is                                                          |
-| -------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------- |
-| `PUBLISH_REPOSITORY_ID`    | `gh api repos/devthenet-labs/app-template --jq .id`       | this repository's immutable numeric ID, which the guard checks      |
-| `PUBLISH_OWNER_ID`         | `gh api repos/devthenet-labs/app-template --jq .owner.id` | its owner's immutable numeric ID                                    |
-| `AWS_REGION`               | `us-east-1`                                               | the registry's AWS region                                           |
-| `ECR_REGISTRY`             | `377946145366.dkr.ecr.us-east-1.amazonaws.com`            | the ECR registry host                                               |
-| `AGENT_IMAGE_REPOSITORY`   | `patchy/app-envs/app-template`                            | the agent image's ECR repository, which `.patchy/agent.yaml` names  |
-| `AGENT_ROLE_ARN`           | the agent publisher role ARN                              | assumed only by `publish-agent.yml`                                 |
-| `RUNTIME_IMAGE_REPOSITORY` | `patchy/previews/app-template`                            | the runtime (preview) image's ECR repository                        |
-| `RUNTIME_ROLE_ARN`         | the runtime publisher role ARN                            | assumed only by `publish-runtime.yml`                               |
-| `AGENT_PUBLISH_ENABLED`    | `true`                                                    | publishes the agent image; anything else skips it                   |
-| `PREVIEW_PUBLISH_ENABLED`  | `true`                                                    | publishes runtime images; set it last, once previews are configured |
+| Variable                   | Value                                                  | What it is                                                          |
+| -------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------- |
+| `PUBLISH_REPOSITORY_ID`    | `gh api repos/devthenet-labs/Hello.Web --jq .id`       | this repository's immutable numeric ID, which the guard checks      |
+| `PUBLISH_OWNER_ID`         | `gh api repos/devthenet-labs/Hello.Web --jq .owner.id` | its owner's immutable numeric ID                                    |
+| `AWS_REGION`               | `us-east-1`                                            | the registry's AWS region                                           |
+| `ECR_REGISTRY`             | `377946145366.dkr.ecr.us-east-1.amazonaws.com`         | the ECR registry host                                               |
+| `AGENT_IMAGE_REPOSITORY`   | `patchy/app-envs/hello-web`                            | the agent image's ECR repository, which `.patchy/agent.yaml` names  |
+| `AGENT_ROLE_ARN`           | the agent publisher role ARN                           | assumed only by `publish-agent.yml`                                 |
+| `RUNTIME_IMAGE_REPOSITORY` | `patchy/previews/hello-web`                            | the runtime (preview) image's ECR repository                        |
+| `RUNTIME_ROLE_ARN`         | the runtime publisher role ARN                         | assumed only by `publish-runtime.yml`                               |
+| `AGENT_PUBLISH_ENABLED`    | `true`                                                 | publishes the agent image; anything else skips it                   |
+| `PREVIEW_PUBLISH_ENABLED`  | `true`                                                 | publishes runtime images; set it last, once previews are configured |
 
 A skipped publisher is not a successful publication. To stop publishing, set a `*_PUBLISH_ENABLED` variable to anything
 but `true`; to revoke publishing, remove the roles' trust policies.
