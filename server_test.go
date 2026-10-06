@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -65,7 +67,7 @@ func TestHomePageShowsDate(t *testing.T) {
 	rec := httptest.NewRecorder()
 	newHandler("abc123", now).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
 	body := rec.Body.String()
-	want := "<h1>Hello.Web</h1>\n<p><small>9 January 2027</small></p>"
+	want := "<h1>Hello.Web</h1>\n<p>Good evening</p>\n<p><small>9 January 2027</small></p>"
 	if !strings.Contains(body, want) {
 		t.Errorf("body = %s\nwant substring %q", body, want)
 	}
@@ -78,5 +80,52 @@ func TestHomePageShowsDateConvertsToUTC(t *testing.T) {
 	body := rec.Body.String()
 	if !strings.Contains(body, "4 October 2026") {
 		t.Errorf("body = %s\nwant substring %q", body, "4 October 2026")
+	}
+}
+
+func TestGreetingAcrossHourBoundaries(t *testing.T) {
+	cases := []struct {
+		name string
+		time time.Time
+		want string
+	}{
+		{"04:59 evening", time.Date(2026, time.October, 3, 4, 59, 0, 0, time.UTC), "Good evening"},
+		{"05:00 morning", time.Date(2026, time.October, 3, 5, 0, 0, 0, time.UTC), "Good morning"},
+		{"11:59 morning", time.Date(2026, time.October, 3, 11, 59, 0, 0, time.UTC), "Good morning"},
+		{"12:00 afternoon", time.Date(2026, time.October, 3, 12, 0, 0, 0, time.UTC), "Good afternoon"},
+		{"16:59 afternoon", time.Date(2026, time.October, 3, 16, 59, 0, 0, time.UTC), "Good afternoon"},
+		{"17:00 evening", time.Date(2026, time.October, 3, 17, 0, 0, 0, time.UTC), "Good evening"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			rec := httptest.NewRecorder()
+			handler := newHandler("abc123", fixedClock(tc.time))
+			handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
+			if !strings.Contains(rec.Body.String(), "<p>"+tc.want+"</p>") {
+				t.Errorf("body lacks %q:\n%s", tc.want, rec.Body.String())
+			}
+		})
+	}
+}
+
+func TestCSPStyleHashMatchesStylesheet(t *testing.T) {
+	rec := httptest.NewRecorder()
+	handler := newHandler("abc123", fixedClock(time.Date(2026, time.October, 3, 15, 4, 5, 0, time.UTC)))
+	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
+	body := rec.Body.String()
+	start := strings.Index(body, "<style>")
+	end := strings.Index(body, "</style>")
+	if start == -1 || end == -1 || end < start {
+		t.Fatalf("page has no <style> block:\n%s", body)
+	}
+	css := body[start+len("<style>") : end]
+	sum := sha256.Sum256([]byte(css))
+	wantSource := "'sha256-" + base64.StdEncoding.EncodeToString(sum[:]) + "'"
+	csp := rec.Header().Get("Content-Security-Policy")
+	if !strings.Contains(csp, "style-src "+wantSource) {
+		t.Errorf("CSP %q does not allow the served stylesheet by hash (want style-src %s)", csp, wantSource)
+	}
+	if strings.Contains(csp, "unsafe-inline") {
+		t.Errorf("CSP %q must not allow unsafe-inline", csp)
 	}
 }
