@@ -20,7 +20,7 @@ const page = `<!doctype html>
 <style>%[5]s</style>
 </head>
 <body>
-<div class="card">
+<div class="card %[6]s">
 <h1>%[1]s</h1>
 <p>%[4]s</p>
 <p><small>%[3]s</small></p>
@@ -45,13 +45,27 @@ body {
   color: #1a1a1a;
 }
 .card {
-  background: #fff;
   border: 1px solid #d0d0d5;
   border-radius: 12px;
   padding: 2rem 2.5rem;
   text-align: center;
   max-width: 24rem;
   margin: 1rem;
+}
+.card.morning {
+  background: #fff6e0;
+  color: #6b4b00;
+  border-color: #f0d998;
+}
+.card.afternoon {
+  background: #e7f3ff;
+  color: #0b4a6f;
+  border-color: #b8ddfb;
+}
+.card.evening {
+  background: #2a2d42;
+  color: #eef1fb;
+  border-color: #454a6b;
 }
 h1 {
   margin: 0 0 0.5rem 0;
@@ -75,14 +89,28 @@ var styleHash = func() string {
 // hash alone.
 var cspHeader = fmt.Sprintf("default-src 'none'; frame-ancestors 'none'; style-src 'sha256-%s'", styleHash)
 
-// greeting returns the time-of-day greeting for a UTC hour (0-23): the
-// same clock the date line already uses. Morning is 05:00-11:59,
-// afternoon is 12:00-16:59, evening is the rest (17:00-04:59).
-func greeting(hour int) string {
+// period returns the time-of-day bucket for a UTC hour (0-23): the same
+// clock the date line already uses. Morning is 05:00-11:59, afternoon is
+// 12:00-16:59, evening is the rest (17:00-04:59). It names both the
+// greeting and the card's colour scheme, so the two never fall out of
+// sync with each other.
+func period(hour int) string {
 	switch {
 	case hour >= 5 && hour < 12:
-		return "Good morning"
+		return "morning"
 	case hour >= 12 && hour < 17:
+		return "afternoon"
+	default:
+		return "evening"
+	}
+}
+
+// greeting returns the time-of-day greeting for a UTC hour (0-23).
+func greeting(hour int) string {
+	switch period(hour) {
+	case "morning":
+		return "Good morning"
+	case "afternoon":
 		return "Good afternoon"
 	default:
 		return "Good evening"
@@ -107,6 +135,7 @@ func newHandler(revision string, now func() time.Time) http.Handler {
 			html.EscapeString(today),
 			html.EscapeString(greeting(t.Hour())),
 			styleCSS,
+			html.EscapeString(period(t.Hour())),
 		)
 	})
 	return withSecurityHeaders(mux)

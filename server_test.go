@@ -108,6 +108,32 @@ func TestGreetingAcrossHourBoundaries(t *testing.T) {
 	}
 }
 
+func TestCardColourAcrossTimeOfDay(t *testing.T) {
+	cases := []struct {
+		name string
+		time time.Time
+		want string
+	}{
+		{"04:59 evening", time.Date(2026, time.October, 3, 4, 59, 0, 0, time.UTC), "evening"},
+		{"05:00 morning", time.Date(2026, time.October, 3, 5, 0, 0, 0, time.UTC), "morning"},
+		{"11:59 morning", time.Date(2026, time.October, 3, 11, 59, 0, 0, time.UTC), "morning"},
+		{"12:00 afternoon", time.Date(2026, time.October, 3, 12, 0, 0, 0, time.UTC), "afternoon"},
+		{"16:59 afternoon", time.Date(2026, time.October, 3, 16, 59, 0, 0, time.UTC), "afternoon"},
+		{"17:00 evening", time.Date(2026, time.October, 3, 17, 0, 0, 0, time.UTC), "evening"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			rec := httptest.NewRecorder()
+			handler := newHandler("abc123", fixedClock(tc.time))
+			handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
+			want := `<div class="card ` + tc.want + `">`
+			if !strings.Contains(rec.Body.String(), want) {
+				t.Errorf("body lacks %q:\n%s", want, rec.Body.String())
+			}
+		})
+	}
+}
+
 func TestCSPStyleHashMatchesStylesheet(t *testing.T) {
 	rec := httptest.NewRecorder()
 	handler := newHandler("abc123", fixedClock(time.Date(2026, time.October, 3, 15, 4, 5, 0, time.UTC)))
