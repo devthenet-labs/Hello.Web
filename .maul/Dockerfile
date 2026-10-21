@@ -20,7 +20,7 @@ RUN mkdir -p /opt/go/pkg/mod && go mod download
 
 # maul's agent base for the release the scaffold came from, pinned by
 # digest: bash, git and the GNU tools, uid 65532, caches under /tmp.
-FROM ghcr.io/devthenet-labs/maul/agent-base:v0.13.0
+FROM ghcr.io/devthenet-labs/maul/agent-base:v0.13.0@sha256:7c66e73d474cade78162ff67dd386d620fa276316285094bccca53d563d1dbb7
 COPY --from=toolchain /usr/local/go /usr/local/go
 COPY --from=deps /opt/go/pkg/mod /opt/go/pkg/mod
 # Offline from here on: GOPROXY=off resolves modules from the baked cache
