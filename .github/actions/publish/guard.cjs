@@ -22,8 +22,8 @@ const ID = /^[1-9][0-9]{0,15}$/;
 // Each image kind is built by exactly one uncredentialed workflow.
 const SOURCE_WORKFLOW = {runtime: '.github/workflows/ci.yml', agent: '.github/workflows/agent-image.yml'};
 const MAX_MIB = {runtime: 128, agent: 2048};
-// The agent image is published as the tag .patchy/agent.yaml declares.
-const AGENT_YAML = '.patchy/agent.yaml';
+// The agent image is published as the tag .maul/agent.yaml declares.
+const AGENT_YAML = '.maul/agent.yaml';
 const AGENT_YAML_MAX_BYTES = 64 * 1024;
 const TOOLCHAIN_TAG = /^toolchain-v[1-9][0-9]{0,5}$/;
 
@@ -38,7 +38,7 @@ function parseID(value, name) {
   return Number(value);
 }
 
-// The tag .patchy/agent.yaml declares for the agent repository: its one
+// The tag .maul/agent.yaml declares for the agent repository: its one
 // non-comment line must be `image: <registry>/<repository>:toolchain-v<N>`,
 // naming exactly the repository this publisher writes.
 function declaredTag(text, repository) {

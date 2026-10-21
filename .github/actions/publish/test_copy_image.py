@@ -58,7 +58,7 @@ case "$1" in
 esac
 """
 
-KEY = "awskms:///alias/patchy-agent-image-signing"
+KEY = "awskms:///alias/maul-agent-image-signing"
 REF = "123456789012.dkr.ecr.us-east-1.amazonaws.com/team/agents/example-app@" + DIGEST
 SIGN = ("cosign sign --key " + KEY + " --tlog-upload=false --new-bundle-format=false --use-signing-config=false"
         " --yes " + REF)
@@ -155,7 +155,7 @@ class PublisherScriptTest(unittest.TestCase):
         (self.ecr / "toolchain-v2").write_text(OTHER + "\n")
         result = self.run_script("copy-image.sh", **AGENT)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("bump the toolchain-v<N> tag in .patchy/agent.yaml", result.stderr)
+        self.assertIn("bump the toolchain-v<N> tag in .maul/agent.yaml", result.stderr)
         self.assertEqual(self.copies(), [])
 
     def test_an_unchanged_toolchain_is_already_published(self):
@@ -209,7 +209,7 @@ class PublisherScriptTest(unittest.TestCase):
                 self.assertEqual(result.stdout, "123456789012\n")
 
     def test_check_config_refuses_a_malformed_signing_key(self):
-        for key in ["alias/patchy-agent-image-signing", "awskms://alias/x", "awskms:///", "gcpkms://projects/p/x",
+        for key in ["alias/maul-agent-image-signing", "awskms://alias/x", "awskms:///", "gcpkms://projects/p/x",
                     "awskms:///alias/x $(id)", "awskms:///alias/x\n", "k8s://ns/secret", "cosign.key"]:
             with self.subTest(key=key):
                 result = self.run_script("check-config.sh", **AGENT, AGENT_SIGNING_KEY=key)

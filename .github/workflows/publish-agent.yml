@@ -3,7 +3,7 @@
 # file at refs/heads/main (job_workflow_ref) as well as this
 # repository's numeric IDs. It never checks out, builds or runs source: it
 # re-reads the build from GitHub's API, validates the image as data and only
-# then asks for the role, to copy opaque blobs to the tag .patchy/agent.yaml
+# then asks for the role, to copy opaque blobs to the tag .maul/agent.yaml
 # declares and, when AGENT_SIGNING_KEY is set, to sign that digest with cosign.
 name: trusted agent publisher
 on:
@@ -49,7 +49,7 @@ jobs:
         run: |
           account_id=$(bash .github/actions/publish/check-config.sh)
           printf 'account_id=%s\n' "$account_id" >> "$GITHUB_OUTPUT"
-      # The tag comes from .patchy/agent.yaml at the built commit, read
+      # The tag comes from .maul/agent.yaml at the built commit, read
       # through the API, so the image is published as exactly the tag the
       # repository declares, in exactly the repository it names.
       - name: Re-read authoritative run, workflow, artifact and declared tag

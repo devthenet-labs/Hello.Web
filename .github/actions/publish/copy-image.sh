@@ -6,7 +6,7 @@
 #                      can still preview the default branch long after the
 #                      sha- expiry)
 #   agent, main only: AGENT_TAG, the toolchain-v<N> tag
-#                      .patchy/agent.yaml declares at the built commit
+#                      .maul/agent.yaml declares at the built commit
 # Every tag is checked on its own, so a re-run still adds main-<sha> when
 # sha-<sha> already exists. A different image at an existing tag is a hard
 # failure, never an overwrite.
@@ -51,7 +51,7 @@ for tag in "${tags[@]}"; do
   elif [[ "$existing" != "$IMAGE_DIGEST" ]]; then
     hint=""
     if [[ "$IMAGE_KIND" == agent ]]; then
-      hint="; tags are immutable, so bump the toolchain-v<N> tag in .patchy/agent.yaml to publish a changed toolchain"
+      hint="; tags are immutable, so bump the toolchain-v<N> tag in .maul/agent.yaml to publish a changed toolchain"
     fi
     fail "$repository:$tag already holds $existing, not $IMAGE_DIGEST$hint"
   else

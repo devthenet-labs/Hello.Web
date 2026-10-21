@@ -1,13 +1,13 @@
 # Image builds and trusted publishers
 
-This repository publishes two images to ECR for [patchy](https://github.com/devthenet-labs/patchy):
+This repository publishes two images to ECR for [maul](https://github.com/devthenet-labs/maul):
 
-- **Runtime image**, what a patchy preview of a pull request runs. `ci.yml` (`test`) builds it
+- **Runtime image**, what a maul preview of a pull request runs. `ci.yml` (`test`) builds it
   for pull request heads and `main` commits; `publish-runtime.yml` pushes it to `RUNTIME_IMAGE_REPOSITORY` as
   `sha-<commit>`, and a `main` commit also as `main-<commit>`, the tag the registry's lifecycle keeps.
-- **Agent toolchain image**, what patchy's coding agent runs in for this repository, with the toolchain and the
+- **Agent toolchain image**, what maul's coding agent runs in for this repository, with the toolchain and the
   dependencies baked in, since the agent has no network. `agent-image.yml` (`agent image`) builds it from `main`
-  only; `publish-agent.yml` pushes it to `AGENT_IMAGE_REPOSITORY` as the tag `.patchy/agent.yaml` declares.
+  only; `publish-agent.yml` pushes it to `AGENT_IMAGE_REPOSITORY` as the tag `.maul/agent.yaml` declares.
 
 ## The boundary
 
@@ -25,7 +25,7 @@ request source and never unpacks image layers. Before it asks for AWS credential
    repository, targeting `main`, at the successful run's exact head. A `main` build's commit must be
    the branch's head or an ancestor of it, compared by SHA with the head the branches API names: a run's `head_branch`
    is only a name, and a run of a tag named `main` carries it too. The artifact is selected by ID from that
-   specific run. For the agent image it also reads `.patchy/agent.yaml` at the built commit, which must name
+   specific run. For the agent image it also reads `.maul/agent.yaml` at the built commit, which must name
    `ECR_REGISTRY/AGENT_IMAGE_REPOSITORY` with a `toolchain-v<N>` tag;
 3. validates a bounded, single-image linux/amd64 OCI archive (`validate_oci.py`): blob hashes and descriptor sizes, no
    links, traversal, duplicates, foreign URLs or unreferenced blobs.
@@ -44,12 +44,12 @@ repository that assume a role:
 | Trusted workflow (`job_workflow_ref`)                                            | Assumes            | Publishes                                                                            |
 | -------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------ |
 | `devthenet-labs/Hello.Web/.github/workflows/publish-runtime.yml@refs/heads/main` | `RUNTIME_ROLE_ARN` | the runtime image as `sha-<commit>`, and `main-<commit>` for a default-branch commit |
-| `devthenet-labs/Hello.Web/.github/workflows/publish-agent.yml@refs/heads/main`   | `AGENT_ROLE_ARN`   | the agent image as the `toolchain-v<N>` tag `.patchy/agent.yaml` declares            |
+| `devthenet-labs/Hello.Web/.github/workflows/publish-agent.yml@refs/heads/main`   | `AGENT_ROLE_ARN`   | the agent image as the `toolchain-v<N>` tag `.maul/agent.yaml` declares              |
 
 The `job_workflow_ref` is compared exactly, case included. The runtime publisher therefore cannot assume the agent role,
 and neither role can write any other repository. A wrong repository variable can only make a publish fail.
 
-Changes to `.github/` and `.patchy/` need human review; patchy's intent changesets refuse both paths. These protections
+Changes to `.github/` and `.maul/` need human review; maul's intent changesets refuse both paths. These protections
 assume the default branch's maintainers stay trusted. As defence in depth, protect `main` with a branch ruleset
 and add a tag ruleset that restricts creating tags named `main`, so no ref can pass for the branch by name.
 
@@ -63,9 +63,9 @@ None of them is secret. Set the configuration first and the two `*_PUBLISH_ENABL
 | `PUBLISH_OWNER_ID`         | `gh api repos/devthenet-labs/Hello.Web --jq .owner.id` | its owner's immutable numeric ID                                    |
 | `AWS_REGION`               | `us-east-1`                                            | the registry's AWS region                                           |
 | `ECR_REGISTRY`             | `377946145366.dkr.ecr.us-east-1.amazonaws.com`         | the ECR registry host                                               |
-| `AGENT_IMAGE_REPOSITORY`   | `patchy/app-envs/hello-web`                            | the agent image's ECR repository, which `.patchy/agent.yaml` names  |
+| `AGENT_IMAGE_REPOSITORY`   | `maul/app-envs/hello-web`                              | the agent image's ECR repository, which `.maul/agent.yaml` names    |
 | `AGENT_ROLE_ARN`           | the agent publisher role ARN                           | assumed only by `publish-agent.yml`                                 |
-| `RUNTIME_IMAGE_REPOSITORY` | `patchy/previews/hello-web`                            | the runtime (preview) image's ECR repository                        |
+| `RUNTIME_IMAGE_REPOSITORY` | `maul/previews/hello-web`                              | the runtime (preview) image's ECR repository                        |
 | `RUNTIME_ROLE_ARN`         | the runtime publisher role ARN                         | assumed only by `publish-runtime.yml`                               |
 | `AGENT_PUBLISH_ENABLED`    | `true`                                                 | publishes the agent image; anything else skips it                   |
 | `PREVIEW_PUBLISH_ENABLED`  | `true`                                                 | publishes runtime images; set it last, once previews are configured |
@@ -75,14 +75,14 @@ but `true`; to revoke publishing, remove the roles' trust policies.
 
 ## Changing the agent toolchain
 
-Edit `.patchy/Dockerfile` and bump the tag in `.patchy/agent.yaml` (`toolchain-v1` to `toolchain-v2`, and so on) in the
+Edit `.maul/Dockerfile` and bump the tag in `.maul/agent.yaml` (`toolchain-v1` to `toolchain-v2`, and so on) in the
 same commit. When it merges, `agent image` builds and the publisher pushes the new tag; the repository then declares an
 image that exists. A dependency change (`go.mod`, `go.sum`) needs a bump too: the agent has no network, so a module
 missing from the baked cache fails its build. If the agent image rebuilds to a different digest without a bump, the
 publish fails and says so; nothing is overwritten.
 
-If the registry moves, change `ECR_REGISTRY` and `AGENT_IMAGE_REPOSITORY` and the image in `.patchy/agent.yaml`
-together: patchy reads the image from the file, and the publisher refuses a declaration that names another repository.
+If the registry moves, change `ECR_REGISTRY` and `AGENT_IMAGE_REPOSITORY` and the image in `.maul/agent.yaml`
+together: maul reads the image from the file, and the publisher refuses a declaration that names another repository.
 
 ## Tests
 

@@ -28,7 +28,7 @@ account="${BASH_REMATCH[1]}"
 if [[ -n "${AGENT_SIGNING_KEY:-}" ]]; then
   [[ "$IMAGE_KIND" == agent ]] || fail "only the agent publisher signs; AGENT_SIGNING_KEY is set for $IMAGE_KIND"
   [[ "$AGENT_SIGNING_KEY" =~ ^awskms:///[A-Za-z0-9/_:.-]+$ ]] ||
-    fail "AGENT_SIGNING_KEY must be an AWS KMS key URI such as awskms:///alias/patchy-agent-image-signing"
+    fail "AGENT_SIGNING_KEY must be an AWS KMS key URI such as awskms:///alias/maul-agent-image-signing"
 fi
 
 printf '%s\n' "$account"
