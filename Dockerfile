@@ -1,4 +1,4 @@
-# The runtime image a patchy preview runs: a static binary on distroless
+# The runtime image a maul preview runs: a static binary on distroless
 # (uid 65532, no shell), listening on 8080. A preview runs it as uid
 # 65532 with a read-only root filesystem and no writable /tmp, so the
 # service writes nothing to disk.

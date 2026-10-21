@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sign the published agent image with the AWS KMS key AGENT_SIGNING_KEY
-# names, so patchy's runner-image verifier (repositoryImages.cosignPublicKey)
+# names, so maul's runner-image verifier (repositoryImages.cosignPublicKey)
 # accepts it. It signs exactly IMAGE_DIGEST, the digest validate_oci.py
 # printed and copy-image.sh published, never a tag.
 #

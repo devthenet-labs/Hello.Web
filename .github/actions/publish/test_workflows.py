@@ -81,7 +81,7 @@ class WorkflowBoundaryTest(unittest.TestCase):
         self.assertIn("AGENT_TAG: ${{ steps.guard.outputs.tag }}", text)
         self.assertNotIn("AGENT_TAG", workflow("publish-runtime.yml"))
         # A change to the declaration alone (a tag bump) rebuilds the image.
-        self.assertIn("'.patchy/**'", workflow("agent-image.yml"))
+        self.assertIn("'.maul/**'", workflow("agent-image.yml"))
 
     def test_runtime_and_agent_publishing_are_gated_separately(self):
         text = workflow("publish-images.yml")

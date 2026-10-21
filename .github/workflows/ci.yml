@@ -1,4 +1,4 @@
-# The uncredentialed build of the runtime image a patchy preview runs,
+# The uncredentialed build of the runtime image a maul preview runs,
 # after the application's tests. It holds no OIDC permission, no
 # repository variable and no secret: publish-images.yml picks its artifact
 # up and hands it to the trusted runtime publisher.

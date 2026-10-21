@@ -1,7 +1,7 @@
-// hello-web is a small HTTP service, the starting point patchy init app
+// hello-web is a small HTTP service, the starting point maul init app
 // generated. It listens on one port, answers /healthz for readiness
 // checks and writes nothing to disk, so it runs with a read-only root
-// filesystem, as a patchy preview runs it.
+// filesystem, as a maul preview runs it.
 package main
 
 import (
